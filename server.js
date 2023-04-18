@@ -1,5 +1,3 @@
-// Rata Surithpinyo 6330454721
-// ** I am using port 3000 **
 const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
