@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const Hospital = require('../models/Hospital');
+const Massage = require('../models/Massage');
 //const vacCenter = require('../models/VacCenter');
-//@desc Get all hospitals
-//@route GET api/v1/hospitals
+//@desc Get all massages
+//@route GET api/v1/massages
 //@access Public
 
 // exports.getVacCenters = (req,res,next)=>{
@@ -12,7 +12,7 @@ const Hospital = require('../models/Hospital');
 //     });
 // };
 
-exports.getHospitals = async (req,res,next) => {
+exports.getMassages = async (req,res,next) => {
         let query;
         const reqQuery = {...req.query};
         const removeFields=['select','sort','page','limit'];
@@ -23,7 +23,7 @@ exports.getHospitals = async (req,res,next) => {
         queryStr=queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g,
         match=>`$${match}`);
 
-        query=Hospital.find(JSON.parse(queryStr)).populate('appointments');
+        query=Massage.find(JSON.parse(queryStr)).populate('appointments');
         if(req.query.select){
             const fields = req.query.select.split(',').join(' ');
             query = query.select(fields);
@@ -39,9 +39,9 @@ exports.getHospitals = async (req,res,next) => {
         const startIndex = (page-1)*limit;
         const endIndex=page*limit;
     try{
-        const total = await Hospital.countDocuments();
+        const total = await Massage.countDocuments();
         query = query.skip(startIndex).limit(limit);
-        const hospitals = await query;
+        const massages = await query;
         const pagination = {};
         if(endIndex<total){ //still have next page
             pagination.next={page:page+1,limit}
@@ -50,65 +50,65 @@ exports.getHospitals = async (req,res,next) => {
             pagination.prev={page:page-1,limit}
         }
         //console.log(req.query);
-        res.status(200).json({success:true, count: hospitals.length, pagination, data:hospitals});
+        res.status(200).json({success:true, count: massages.length, pagination, data:massages});
     } catch(err){
         res.status(400).json({success:false});
     }
 }; 
 
-//@desc Get single hospital
-//@route GET api/v1/hospitals/:id
+//@desc Get single massage
+//@route GET api/v1/massages/:id
 //@access Public
-exports.getHospital = async (req,res,next)=>{
+exports.getMassage = async (req,res,next)=>{
     try{
-        const hospital = await Hospital.findById(req.params.id);
-        if(!hospital){
+        const massage = await Massage.findById(req.params.id);
+        if(!massage){
             return res.status(400).json({success:false});
         }
-        res.status(200).json({success:true, data:hospital});
+        res.status(200).json({success:true, data:massage});
     } catch(err){
         res.status(400).json({success:false});
     }
 }; 
 
-//@desc Create new hospital
-//@route POST api/v1/hospitals
+//@desc Create new massage
+//@route POST api/v1/massages
 //@access Private
-exports.createHospital = async (req,res,next) => {
-    const hospital = await Hospital.create(req.body);
-    res.status(201).json({success:true, data:hospital});
+exports.createMassage = async (req,res,next) => {
+    const massage = await Massage.create(req.body);
+    res.status(201).json({success:true, data:massage});
 }; 
 
-//@desc Update hospital
-//@route PUT api/v1/hospitals/:id
+//@desc Update massage
+//@route PUT api/v1/massages/:id
 //@access Private
-exports.updateHospital = async (req,res,next) => {
+exports.updateMassage = async (req,res,next) => {
     try{
-        const hospital = await Hospital.findByIdAndUpdate(req.params.id, req.body, {
+        const massage = await Massage.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true
         });
 
-        if(!hospital){
+        if(!massage){
             return res.status(400).json({success:false});
         }
-        res.status(200).json({success:true, data:hospital});
+        res.status(200).json({success:true, data:massage});
     } catch(err){
         res.status(400).json({success:false});
     }
 }; 
 
-//@desc Delete hospital
-//@route DELETE api/v1/hospitals/:id
+//@desc Delete massage
+//@route DELETE api/v1/massages/:id
 //@access Private
-exports.deleteHospital = async (req,res,next) => {
+exports.deleteMassage = async (req,res,next) => {
     try{
-        const hospital = await Hospital.findById(req.params.id);
+        const massage = await Massage.findById(req.params.id);
 
-        if(!hospital){
+        if(!massage){
             return res.status(400).json({success:false});
         }
-        hospital.remove();
+        massage.remove();
         res.status(200).json({success:true, data:{}});
     } catch(err){
         res.status(400).json({success:false});

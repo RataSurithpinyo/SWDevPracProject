@@ -49,10 +49,10 @@ const swaggerOptions={
 const swaggerDocs=swaggerJsDoc(swaggerOptions);
 app.use('/api-docs',swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
-const hospitals = require('./routes/hospitals');
+const massages = require('./routes/massages');
 const appointments = require('./routes/appointments');
 const auth = require('./routes/auth');
-app.use('/api/v1/hospitals',hospitals);
+app.use('/api/v1/massages',massages);
 app.use('/api/v1/appointments',appointments);
 app.use('/api/v1/auth',auth);
 //const mongoSanitize = require('express-mongo-sanitize');

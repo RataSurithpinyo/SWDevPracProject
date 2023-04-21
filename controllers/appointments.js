@@ -1,15 +1,15 @@
 const Appointment = require('../models/Appointment');
-const Hospital = require('../models/Hospital');
+const Massage = require('../models/Massage');
 exports.getAppointments = async(req,res,next)=>{
     let query;
     if(req.user.role !== 'admin'){
         query=Appointment.find({user:req.user.id}).populate({
-            path:'hospital',
+            path:'massage',
             select: 'name province tel'
         });
     }else{
         query=Appointment.find().populate({
-            path: 'hospital',
+            path: 'massage',
             select: 'name province tel'
         });
     }
@@ -30,7 +30,7 @@ exports.getAppointments = async(req,res,next)=>{
 exports.getAppointment = async(req,res,next)=>{
     try{
         const appointment = await Appointment.findById(req.params.id).populate({
-            path: 'hospital',
+            path: 'massage',
             select: 'name province tel'
         });
         if(!appointment){
@@ -50,10 +50,10 @@ exports.getAppointment = async(req,res,next)=>{
 exports.addAppointment = async(req,res,next)=>{
     try{
         req.body.hospital = req.params.hospitalId;
-        const hospital = await Hospital.findById(req.params.hospitalId);
+        const Massage = await Massage.findById(req.params.hospitalId);
 
-        if(!hospital){
-            return res.status(404).json({success:false,message:`No hospital with the id of ${req.params.hospitalId}`});
+        if(!massage){
+            return res.status(404).json({success:false,message:`No massage shop with the id of ${req.params.hospitalId}`});
         }
         req.body.user = req.user.id;
         const existedAppointment = await Appointment.find({user:req.user.id});
