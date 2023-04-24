@@ -35,7 +35,35 @@ const MassageSchema = new mongoose.Schema({
     limit:{
         type: Number,
         required: [true,'Please set a limit to how many appointment can a massage shop take']
+    },
+    openHours:{
+        type: Object,
+        open: {
+            type:Number,
+            required: true,
+            min: 0,
+            max: 1440,
+            required: function(){
+                return this.openHours.open < this.openHours.close
+            }
+        },
+        close:{
+            type:Number,
+            required: true,
+            min:0,
+            max:1440,
+            required: function(){
+                return this.openHours.open < this.openHours.close
+            }
+        },
+        validate:{
+            validator:function(){
+                return this.openHours.open < this.openHours.close
+        },  message:"Opening hours must be less than closing hours"
     }
+
+    }
+        
 },{
     toJSON: {virtuals:true},
     toObject:{virtuals:true}

@@ -75,8 +75,14 @@ exports.getMassage = async (req,res,next)=>{
 //@route POST api/v1/massages
 //@access Private
 exports.createMassage = async (req,res,next) => {
-    const massage = await Massage.create(req.body);
-    res.status(201).json({success:true, data:massage});
+    try{
+        const massage = await Massage.create(req.body);
+        res.status(201).json({success:true, data:massage});
+    }
+    catch(err){
+        console.log(err)
+        res.status(400).json({success:false,message:err.errors.openHours.message})
+    }
 }; 
 
 //@desc Update massage
