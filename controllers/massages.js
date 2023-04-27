@@ -13,17 +13,31 @@ const Massage = require('../models/Massage');
 // };
 
 exports.getMassages = async (req,res,next) => {
-        let query;
+        let query; const value = {};
         const reqQuery = {...req.query};
+        let searchAddress = reqQuery.address; //if not address = undefined
+        //console.log(searchAddress);
+        let regex = "";
+        if(searchAddress!=undefined){
+            regex = new RegExp(`${searchAddress}`, "i");
+        }
+        console.log("RegExp: "+ regex);
+        if (searchAddress !== undefined) {
+            value["address"] = { $regex: regex };
+        }
+        console.log("value: "+value);
+        
         const removeFields=['select','sort','page','limit'];
         removeFields.forEach(param=>delete reqQuery[param]);
-        console.log(reqQuery);
+        //console.log(reqQuery);
         let queryStr=JSON.stringify(reqQuery);
 
         queryStr=queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g,
         match=>`$${match}`);
 
-        query=Massage.find(JSON.parse(queryStr)).populate('appointments');
+        //console.log(": " + JSON.parse(queryStr).populate('appointments'));
+        //JSON.parse(queryStr)).populate('appointments'
+        query=Massage.find(value);
         if(req.query.select){
             const fields = req.query.select.split(',').join(' ');
             query = query.select(fields);
