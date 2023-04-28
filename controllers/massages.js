@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 const Massage = require('../models/Massage');
-//const vacCenter = require('../models/VacCenter');
-//@desc Get all massages
-//@route GET api/v1/massages
-//@access Public
-
-// exports.getVacCenters = (req,res,next)=>{
-//     vacCenter.getAll((err,data) => {
-//         if(err) res.status(500).send({message:err.message||"Some error occurred while retrieving Vaccine Centers."});
-//         else res.send(data);
-//     });
-// };
 
 exports.getMassages = async (req,res,next) => {
+        const {openHours} = req.body;
+        //if(req.body!=null) {openHours = req.body};
+        // const {openHours}=req.body;
+        //console.log("openHours: " + openHours);
+        let open = null; let close = null;
+        if(openHours!=undefined){
+            open = parseInt(openHours.open);
+            close = parseInt(openHours.close);
+            console.log("open: " + open + " close: "+ close);
+        }
+
         let query; const value = {};
         const reqQuery = {...req.query};
         let searchAddress = reqQuery.address; //if not address = undefined
@@ -21,37 +21,55 @@ exports.getMassages = async (req,res,next) => {
         if(searchAddress!=undefined){
             regex = new RegExp(`${searchAddress}`, "i");
         }
-        console.log("RegExp: "+ regex);
+        //console.log("RegExp: "+ regex);
         if (searchAddress !== undefined) {
             value["address"] = { $regex: regex };
         }
-        console.log("value: "+value);
-        
+        //console.log("value: "+ value);
         const removeFields=['select','sort','page','limit'];
         removeFields.forEach(param=>delete reqQuery[param]);
         //console.log(reqQuery);
-        let queryStr=JSON.stringify(reqQuery);
-
-        queryStr=queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g,
-        match=>`$${match}`);
-
+        //let queryStr=JSON.stringify(reqQuery);
+        let queryStr;
+        if ('openHours' in req.body) {
+            queryStr = JSON.stringify({
+                ...reqQuery,
+                "openHours.open": { $gt: open },
+                "openHours.close": { $lt: close }
+            });
+        } else {
+            queryStr=JSON.stringify(reqQuery);
+        }
+        // queryStr=queryStr.replace(/\b(gt|gte|lt|lte|in)\b/g,
+        // match=>`$${match}`);
+        console.log(queryStr);
         //console.log(": " + JSON.parse(queryStr).populate('appointments'));
-        //JSON.parse(queryStr)).populate('appointments'
-        query=Massage.find(value);
-        if(req.query.select){
-            const fields = req.query.select.split(',').join(' ');
-            query = query.select(fields);
+        //JSON.parse(queryStr)).populate('appointments')
+        if(searchAddress!=undefined){
+            query = Massage.find(value);
+        } else {
+            query = Massage.find(JSON.parse(queryStr)); //an address
         }
-        if(req.query.sort){
-            const sortBy = req.query.sort.split(',').join(' ');
-            query = query.sort(sortBy);
-        }else{
-            query = query.sort('-createdAt');
-        }
+
+        //console.log(query);
+        //query = Massage.find(value);
+        // if(req.query.select){
+        //     const fields = req.query.select.split(',').join(' ');
+        //     query = query.select(fields);
+        // }
+        // if(req.query.sort){
+        //     const sortBy = req.query.sort.split(',').join(' ');
+        //     query = query.sort(sortBy);
+        // }else{
+        //     query = query.sort('-createdAt');
+        // }
+        //
+
         const page = parseInt(req.query.page,10)||1;
         const limit = parseInt(req.query.limit,10)||25;
         const startIndex = (page-1)*limit;
         const endIndex=page*limit;
+
     try{
         const total = await Massage.countDocuments();
         query = query.skip(startIndex).limit(limit);
@@ -66,6 +84,7 @@ exports.getMassages = async (req,res,next) => {
         //console.log(req.query);
         res.status(200).json({success:true, count: massages.length, pagination, data:massages});
     } catch(err){
+        console.log(err);
         res.status(400).json({success:false});
     }
 }; 
