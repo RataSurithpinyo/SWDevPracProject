@@ -48,19 +48,26 @@ exports.getAppointment = async(req,res,next)=>{
 };
 
 exports.addAppointment = async(req,res,next)=>{
-    try{
-        req.body.hospital = req.params.hospitalId;
-        const Massage = await Massage.findById(req.params.hospitalId);
-
+    try {
+        req.body.massage = req.params.massageId;
+        const massage = await Massage.findById(req.params.massageId).populate({
+            path: 'appointments',
+            select: '_id'
+        });
         if(!massage){
-            return res.status(404).json({success:false,message:`No massage shop with the id of ${req.params.hospitalId}`});
+            return res.status(404).json({success:false,message:`No massage shop with the id of ${req.params.massageId}`});
         }
+        console.log(massage.appointments.length)
+        console.log(massage.limit)
         req.body.user = req.user.id;
         const existedAppointment = await Appointment.find({user:req.user.id});
-        if(existedAppointment.length>=3 && req.user.role!=='admin'){
-            return res.status(400).json({success:false,message:`The user with ID ${req.user.id} has already make 3 appointments`}); 
+        if (massage.appointments.length >= massage.limit) {
+            console.log("yes")
+            return res.status(400).json({success:false,message:`The massage shop with ID ${massage._id} has already made ${massage.limit} appointments`}); 
         }
         const appointment = await Appointment.create(req.body);
+        const updatedMassage = await Massage.findByIdAndUpdate(massage, { "available": massage.limit - massage.appointments.length -1 })
+        console.log(updatedMassage)
         res.status(200).json({
             success: true,
             data: appointment

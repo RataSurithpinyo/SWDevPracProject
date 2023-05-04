@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Massage = require('../models/Massage');
 
-exports.getMassages = async (req,res,next) => {
+exports.getMassages = async (req, res, next) => {
     const { openHours } = req.body;
     let open = null;
     let close = null;
@@ -35,7 +35,6 @@ exports.getMassages = async (req,res,next) => {
 
     const removeFields = ["select", "sort", "page", "limit"];
     removeFields.forEach((param) => delete reqQuery[param]);
-
     let queryStr = JSON.stringify(reqQuery);
     if (openHours !== undefined) {
         queryStr = JSON.stringify({
@@ -46,17 +45,22 @@ exports.getMassages = async (req,res,next) => {
     }
 
     if (searchAddress !== undefined) {
-        query = Massage.find(value);
+        query = Massage.find(value).sort({"available":-1}).populate({
+            path: 'appointments',
+            select: '_id'
+        });
     } else {
-        query = Massage.find(JSON.parse(queryStr));
+        query = Massage.find(JSON.parse(queryStr)).sort({"available":-1}).populate({
+            path: 'appointments',
+            select: '_id'
+        });
     }
-
     const page = parseInt(req.query.page,10)||1;
     const limit = parseInt(req.query.limit,10)||25;
     const startIndex = (page-1)*limit;
     const endIndex=page*limit;
 
-try{
+    try {
     const total = await Massage.countDocuments();
     query = query.skip(startIndex).limit(limit);
     const massages = await query;
@@ -75,13 +79,15 @@ try{
 }
 }; 
 
-
 //@desc Get single massage
 //@route GET api/v1/massages/:id
 //@access Public
 exports.getMassage = async (req,res,next)=>{
     try{
-        const massage = await Massage.findById(req.params.id);
+        const massage = await Massage.findById(req.params.id).populate({
+            path: 'appointments',
+            select: '_id'
+        });
         if(!massage){
             return res.status(400).json({success:false});
         }

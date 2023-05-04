@@ -4,7 +4,7 @@ require('../controllers/massages');
 const appointmentRouter = require('./appointments');
 const router = express.Router();
 const {protect,authorize} = require('../middleware/auth');
-router.use('/:hospitalId/appointments/',appointmentRouter);
+router.use('/:massageId/appointments/',appointmentRouter);
 router.route('/').get(getMassages).post(protect,authorize('admin'),createMassage);
 router.route('/:id').get(getMassage).put(protect,authorize('admin'),updateMassage).delete(protect,authorize('admin'),deleteMassage);
 
@@ -116,7 +116,7 @@ module.exports = router; //export to let other files see the router
 *         contents:
 *           application/json:
 *             schema:
-*               $ref: '#/components/schemas/Hospital'
+*               $ref: '#/components/schemas/Massage'
 *       404:
 *         description: The hospital was not found
 */
@@ -132,14 +132,14 @@ module.exports = router; //export to let other files see the router
 *       content:
 *         application/json:
 *           schema:
-*             $ref: '#/components/schemas/Hospital'
+*             $ref: '#/components/schemas/Massage'
 *     responses:
 *       201:
 *         description: The hospital was successfully created
 *         content:
 *           application/json:
 *             schema:
-*               $ref: '#/components/schemas/Hospital'
+*               $ref: '#/components/schemas/Massage'
 *       500:
 *         description: Some server error
 */
@@ -163,14 +163,14 @@ module.exports = router; //export to let other files see the router
 *       content:
 *         application/json:
 *           schema:
-*             $ref: '#/components/schemas/Hospital'
+*             $ref: '#/components/schemas/Massage'
 *     responses:
 *       200:
 *         description: The hospital was updated
 *         content:
 *           application/json:
 *             schema:
-*               $ref: '#/components/schemas/Hospital'
+*               $ref: '#/components/schemas/Massage'
 *       404:
 *         description: The hospital was not found
 *       500:
