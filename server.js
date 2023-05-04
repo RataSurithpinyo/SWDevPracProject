@@ -34,9 +34,9 @@ const swaggerOptions={
     swaggerDefinition:{
         openapi: '3.0.0',
         info: {
-            title: 'Library API',
+            title: 'Massage Shop API',
             version: '1.0.0',
-            description: 'A simple Express VacQ API'
+            description: 'A simple Express Massage Shop API'
         },
         servers: [
             {

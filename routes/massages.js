@@ -5,7 +5,6 @@ const appointmentRouter = require('./appointments');
 const router = express.Router();
 const {protect,authorize} = require('../middleware/auth');
 router.use('/:hospitalId/appointments/',appointmentRouter);
-//router.route('/vacCenters').get(getVacCenters);
 router.route('/').get(getMassages).post(protect,authorize('admin'),createMassage);
 router.route('/:id').get(getMassage).put(protect,authorize('admin'),updateMassage).delete(protect,authorize('admin'),deleteMassage);
 
@@ -15,7 +14,7 @@ module.exports = router; //export to let other files see the router
 * @swagger
 * components:
 *   schemas:
-*     Hospital:
+*     Massages:
 *       type: object
 *       required:
 *         - name
@@ -24,14 +23,14 @@ module.exports = router; //export to let other files see the router
 *         id:
 *           type: string
 *           format: uuid
-*           description: The auto-generated id of the hospital
+*           description: The auto-generated id of the massage shop
 *           example: d290f1ee-6c54-4b01-90e6-d701748f0851
 *         ลําดับ:
 *           type: string
 *           description: Ordinal number
 *         name:
 *           type: string
-*           description: Hospital name
+*           description: Massage shop name
 *         address:
 *           type: string
 *           description: House No., Street, Road
@@ -50,34 +49,46 @@ module.exports = router; //export to let other files see the router
 *         region:
 *           type: string
 *           description: region
+*         limit:
+*           type: number
+*           description: The limit on how many appointment can the massage shop take
+*         openHours:
+*           type: json
+*           description: The opening time and closing time of the shop
 *       example:
 *         id: 609bda561452242d88d36e37
 *         ลําดับ: 121
-*         name: Happy Hospital
+*         name: Thai Massage Shop
 *         address: 121 ถ.สุขุมวิท
 *         district: บางนา
 *         province: กรุงเทพมหานคร
 *         postalcode: 10110
 *         tel: 02-2187000
 *         region: กรุงเทพมหานคร (Bangkok)
+*         limit: 1
+*         openHours:
+*          { 
+*            "open": 600,
+*            "close": 1200 
+*          }
 */
 
 /**
 * @swagger
 * tags:
-*   name: Hospitals
-*   description: The hospitals managing API
+*   name: Massage
+*   description: The massage shop managing API
 */
 
 /**
 * @swagger
-* /hospitals:
+* /massages:
 *   get:
-*     summary: Returns the list of all the hospitals
-*     tags: [Hospitals]
+*     summary: Returns the list of all the massages
+*     tags: [Massages]
 *     responses:
 *       200:
-*         description: The list of the hospitals
+*         description: The list of the massages
 *         content:
 *           application/json:
 *             schema:
@@ -88,10 +99,10 @@ module.exports = router; //export to let other files see the router
 
 /**
 * @swagger
-* /hospitals/{id}:
+* /massages/{id}:
 *   get:
 *     summary: Get the hospital by id
-*     tags: [Hospitals]
+*     tags: [Massages]
 *     parameters:
 *       - in: path
 *         name: id
@@ -112,10 +123,10 @@ module.exports = router; //export to let other files see the router
 
 /**
 * @swagger
-* /hospitals:
+* /massages:
 *   post:
 *     summary: Create a new hospital
-*     tags: [Hospitals]
+*     tags: [Massages]
 *     requestBody:
 *       required: true
 *       content:
@@ -136,10 +147,10 @@ module.exports = router; //export to let other files see the router
 //update
 /**
 * @swagger
-* /hospitals/{id}:
+* /massages/{id}:
 *   put:
 *     summary: Update the hospital by the id
-*     tags: [Hospitals]
+*     tags: [Massages]
 *     parameters:
 *       - in: path
 *         name: id
@@ -169,10 +180,10 @@ module.exports = router; //export to let other files see the router
 //delete
 /**
 * @swagger
-* /hospitals/{id}:
+* /massages/{id}:
 *   delete:
 *     summary: Remove the hospital by id
-*     tags: [Hospitals]
+*     tags: [Massages]
 *     parameters:
 *       - in: path
 *         name: id
