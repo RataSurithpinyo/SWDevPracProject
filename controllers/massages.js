@@ -10,6 +10,7 @@ exports.getMassages = async (req,res,next) => {
         close = parseInt(openHours.close);
         console.log("open: " + open + " close: " + close);
     }
+    const checktime = open < close
 
     const reqQuery = { ...req.query };
     let searchAddress = reqQuery.address;
@@ -56,23 +57,26 @@ exports.getMassages = async (req,res,next) => {
     const startIndex = (page-1)*limit;
     const endIndex=page*limit;
 
-try{
-    const total = await Massage.countDocuments();
-    query = query.skip(startIndex).limit(limit);
-    const massages = await query;
-    const pagination = {};
-    if(endIndex<total){ //still have next page
-        pagination.next={page:page+1,limit}
+    try{
+            const total = await Massage.countDocuments();
+            query = query.skip(startIndex).limit(limit);
+            const massages = await query;
+            const pagination = {};
+            if(endIndex<total){ //still have next page
+                pagination.next={page:page+1,limit}
+            }
+            if(startIndex>0){
+                pagination.prev={page:page-1,limit}
+            }
+            //console.log(req.query);
+        if(checktime) res.status(200).json({success:true, count: massages.length, pagination, data:massages});
+        else {
+            res.status(400).json({success:false, message:'Opening hours must be less than closing hours'});
+        }
+    } catch(err){
+        console.log(err);
+        res.status(400).json({success:false});
     }
-    if(startIndex>0){
-        pagination.prev={page:page-1,limit}
-    }
-    //console.log(req.query);
-    res.status(200).json({success:true, count: massages.length, pagination, data:massages});
-} catch(err){
-    console.log(err);
-    res.status(400).json({success:false});
-}
 }; 
 
 
@@ -97,7 +101,9 @@ exports.getMassage = async (req,res,next)=>{
 exports.createMassage = async (req,res,next) => {
     try{
         const massage = await Massage.create(req.body);
-        res.status(201).json({success:true, data:massage});
+        console.log(massage.openHours.open)
+        if(massage.openHours.open < massage.openHours.close)res.status(201).json({success:true, data:massage});
+        else res.status(400).json({success:false, message:'Opening hours must be less than closing hours'});
     }
     catch(err){
         console.log(err)

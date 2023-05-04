@@ -59,11 +59,9 @@ const MassageSchema = new mongoose.Schema({
         validate:{
             validator:function(){
                 return this.openHours.open < this.openHours.close
-        },  message:"Opening hours must be less than closing hours"
-    }
-
-    }
-        
+            },  message:"Opening hours must be less than closing hours"
+        }
+    }   
 },{
     toJSON: {virtuals:true},
     toObject:{virtuals:true}
