@@ -28,8 +28,8 @@ exports.getMassages = async (req, res, next) => {
         value = {
             ...value,
             $and: [
-                { "openHours.open": { $lte: open } },
-                { "openHours.close": { $gte: close } },
+                { "openHours.open": { $gte: open } },
+                { "openHours.close": { $lte: close } },
             ],
         };
     }
@@ -40,8 +40,8 @@ exports.getMassages = async (req, res, next) => {
     if (openHours !== undefined) {
         queryStr = JSON.stringify({
             ...reqQuery,
-            "openHours.open": { $lte: open },
-            "openHours.close": { $gte: close },
+            "openHours.open": { $gte: open },
+            "openHours.close": { $lte: close },
         });
     }
 
