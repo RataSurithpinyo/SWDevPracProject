@@ -2,7 +2,16 @@ const mongoose = require('mongoose');
 const Massage = require('../models/Massage');
 
 exports.getMassages = async (req, res, next) => {
-    const { openHours } = req.body;
+    const { openHours,apptTime } = req.body;
+    console.log(1);
+    let upperDate = null;
+    let lowerDate = null;
+    if (apptTime !== undefined){
+        const date = new Date(apptTime);
+        upperDate = new Date(date.setDate(date.getDate()+1)).toISOString();
+        lowerDate = new Date(date.setDate(date.getDate()-1)).toISOString();
+    }
+
     let open = null;
     let close = null;
     if (openHours !== undefined) {
@@ -11,7 +20,7 @@ exports.getMassages = async (req, res, next) => {
         console.log("open: " + open + " close: " + close);
     }
     const checktime = open < close
-
+    console.log(checktime,open,close)
     const reqQuery = { ...req.query };
     let searchAddress = reqQuery.address;
     let regex = "";
@@ -33,7 +42,6 @@ exports.getMassages = async (req, res, next) => {
             ],
         };
     }
-
     const removeFields = ["select", "sort", "page", "limit"];
     removeFields.forEach((param) => delete reqQuery[param]);
     let queryStr = JSON.stringify(reqQuery);
@@ -48,12 +56,20 @@ exports.getMassages = async (req, res, next) => {
     if (searchAddress !== undefined) {
         query = Massage.find(value).sort({"available":-1}).populate({
             path: 'appointments',
-            select: '_id'
+            select: '_id apptDate',
+            match: {apptDate:{
+                $gte:lowerDate,
+                $lte:upperDate
+            }}
         });
     } else {
         query = Massage.find(JSON.parse(queryStr)).sort({"available":-1}).populate({
             path: 'appointments',
-            select: '_id'
+            select: '_id apptTime',
+            match: {apptDate:{
+                $gte:lowerDate,
+                $lte:upperDate
+            }}
         });
     }
     const page = parseInt(req.query.page,10)||1;
@@ -73,7 +89,26 @@ exports.getMassages = async (req, res, next) => {
                 pagination.prev={page:page-1,limit}
             }
             //console.log(req.query);
-        if(checktime) res.status(200).json({success:true, count: massages.length, pagination, data:massages});
+        massages.forEach(function (element) {
+            console.log("appointments :",element.appointments.length, "limit",element.limit)
+            element.available = element.limit - element.appointments.length;
+            console.log("left", element.available)
+        });
+        function compare( a, b ) {
+            if ( a.available < b.available ){
+              return 1;
+            }
+            if ( a.available > b.available ){
+              return -1;
+            }
+            return 0;
+          }
+          
+        massages.sort( compare );
+        // console.log(massages[0].Active)
+        // console.log(massages[0])
+        console.log(massages)
+        if(checktime || open == null) res.status(200).json({success:true, count: massages.length, pagination, data:massages});
         else {
             res.status(400).json({success:false, message:'Opening hours must be less than closing hours'});
         }
