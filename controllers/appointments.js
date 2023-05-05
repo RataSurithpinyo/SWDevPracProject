@@ -60,10 +60,13 @@ exports.addAppointment = async(req,res,next)=>{
         console.log(massage.appointments.length)
         console.log(massage.limit)
         req.body.user = req.user.id;
-        const existedAppointment = await Appointment.find({user:req.user.id});
+        const existedAppointments = await Appointment.find({user:req.user.id});
         if (massage.appointments.length >= massage.limit) {
             console.log("yes")
             return res.status(400).json({success:false,message:`The massage shop with ID ${massage._id} has already made ${massage.limit} appointments`}); 
+        }
+        if(existedAppointments.length >= 3 && req.user.role !== 'admin'){
+            return res.status(400).json({success:false,message:`The user with ID ${req.user.id} already has 3 appointments`});
         }
         const appointment = await Appointment.create(req.body);
         const updatedMassage = await Massage.findByIdAndUpdate(massage, { "available": massage.limit - massage.appointments.length -1 })
